@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Data.Group where
 
 import Data.Monoid
@@ -99,7 +97,7 @@ instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, 
 class Group a => Cyclic a where
   generator :: a
 
-generated :: forall a. (Cyclic a) => [a]
+generated :: (Cyclic a) => [a]
 generated =
-  iterate (mappend (generator::a)) mempty
+  iterate (mappend generator) mempty
 
