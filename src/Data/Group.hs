@@ -97,7 +97,7 @@ instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, 
 class Group a => Cyclic a where
   generator :: a
 
-generated :: (Cyclic a) => [a]
+generated :: Cyclic a => [a]
 generated =
   iterate (mappend generator) mempty
 
