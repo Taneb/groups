@@ -90,3 +90,14 @@ instance (Abelian a, Abelian b, Abelian c) => Abelian (a, b, c)
 instance (Abelian a, Abelian b, Abelian c, Abelian d) => Abelian (a, b, c, d)
 
 instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, b, c, d, e)
+
+-- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
+--
+-- @y = pow x n@
+class Group a => Cyclic a where
+  generator :: a
+
+generated :: Cyclic a => [a]
+generated =
+  iterate (mappend generator) mempty
+
