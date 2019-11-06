@@ -77,7 +77,9 @@ instance (Group a, Group b, Group c, Group d, Group e) => Group (a, b, c, d, e) 
 
 -- |An 'Abelian' group is a 'Group' that follows the rule:
 --
--- @a \<> b == b \<> a@
+-- @
+-- a \<> b == b \<> a
+-- @
 class Group g => Abelian g
 
 instance Abelian ()
@@ -98,9 +100,12 @@ instance (Abelian a, Abelian b, Abelian c, Abelian d) => Abelian (a, b, c, d)
 
 instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, b, c, d, e)
 
--- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
+-- | A 'Group' G is 'Cyclic' if there exists an element x of G such
+-- that for all y in G, there exists an n, such that:
 --
--- @y = pow x n@
+-- @
+-- y = pow x n
+-- @
 class Group a => Cyclic a where
   generator :: a
 
