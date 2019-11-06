@@ -3,25 +3,50 @@ Module      : Data.Group
 Copyright   : (C) 2013 Nathan van Doorn
 License     : BSD-3
 Maintainer  : nvd1234@gmail.com
+
+The laws for 'RegularSemigroup' and 'InverseSemigroup' are from
+<https://www.youtube.com/watch?v=HGi5AxmQUwU Ed Kmett's talk at Lambda World 2018>.
 -}
 
 module Data.Group where
 
 import Data.Monoid
 
--- |A 'Group' is a 'Monoid' plus a function, 'invert', such that:
+-- | A 'RegularSemigroup' is a 'Semigroup' where every element @x@ has
+-- at least one element @inv x@ such that:
 --
--- @a \<> invert a == mempty@
+-- @
+--     x \<> 'inv' x \<>     x =     x
+-- 'inv' x \<>     x \<> 'inv' x = 'inv' x
+-- @
+class Semigroup g => RegularSemigroup g where
+  inv :: g -> g
+
+-- | An 'InverseSemigroup' is a 'RegularSemigroup' with the additional
+-- restriction that inverses are unique.
 --
--- @invert a \<> a == mempty@
-class Monoid m => Group m where
-  invert :: m -> m
+-- Equivalently:
+--
+-- 1. Any idempotent @y@ is of the form @x \<> inv x@ for some x.
+-- 2. All idempotents commute. (<https://math.stackexchange.com/questions/1093328/do-the-idempotents-in-an-inverse-semigroup-commute/1093476#1093476 Partial proof>)
+class RegularSemigroup g => InverseSemigroup g
+
+-- | A 'Group' adds the conditions that:
+--
+-- @
+-- a     \<> 'inv' a == 'mempty'
+-- 'inv' a \<>     a == 'mempty'
+-- @
+class (InverseSemigroup g, Monoid g) => Group g where
+  invert :: g -> g
+  invert = inv
+
   -- |@'pow' a n == a \<> a \<> ... \<> a @
   --
   -- @ (n lots of a) @
   --
   -- If n is negative, the result is inverted.
-  pow :: Integral x => m -> x -> m
+  pow :: Integral x => g -> x -> g
   pow x0 n0 = case compare n0 0 of
     LT -> invert . f x0 $ negate n0
     EQ -> mempty
@@ -35,6 +60,44 @@ class Monoid m => Group m where
         | even n = g (x `mappend` x) (n `quot` 2) c
         | n == 1 = x `mappend` c
         | otherwise = g (x `mappend` x) (n `quot` 2) (x `mappend` c)
+{-# DEPRECATED invert "use inv from RegularSemigroup instead" #-}
+
+instance RegularSemigroup () where
+  inv () = ()
+
+instance Num a => RegularSemigroup (Sum a) where
+  inv = Sum . negate . getSum
+
+instance Fractional a => RegularSemigroup (Product a) where
+  inv = Product . recip . getProduct
+
+instance RegularSemigroup a => RegularSemigroup (Dual a) where
+  inv = Dual . inv . getDual
+
+instance RegularSemigroup b => RegularSemigroup (a -> b) where
+  inv f = inv . f
+
+instance (RegularSemigroup a, RegularSemigroup b) => RegularSemigroup (a, b) where
+  inv (a, b) = (inv a, inv b)
+
+instance (RegularSemigroup a, RegularSemigroup b, RegularSemigroup c) => RegularSemigroup (a, b, c) where
+  inv (a, b, c) = (inv a, inv b, inv c)
+
+instance (RegularSemigroup a, RegularSemigroup b, RegularSemigroup c, RegularSemigroup d) => RegularSemigroup (a, b, c, d) where
+  inv (a, b, c, d) = (inv a, inv b, inv c, inv d)
+
+instance (RegularSemigroup a, RegularSemigroup b, RegularSemigroup c, RegularSemigroup d, RegularSemigroup e) => RegularSemigroup (a, b, c, d, e) where
+  inv (a, b, c, d, e) = (inv a, inv b, inv c, inv d, inv e)
+
+instance InverseSemigroup ()
+instance Num a => InverseSemigroup (Sum a)
+instance Fractional a => InverseSemigroup (Product a)
+instance InverseSemigroup a => InverseSemigroup (Dual a)
+instance InverseSemigroup b => InverseSemigroup (a -> b)
+instance (InverseSemigroup a, InverseSemigroup b) => InverseSemigroup (a, b)
+instance (InverseSemigroup a, InverseSemigroup b, InverseSemigroup c) => InverseSemigroup (a, b, c)
+instance (InverseSemigroup a, InverseSemigroup b, InverseSemigroup c, InverseSemigroup d) => InverseSemigroup (a, b, c, d)
+instance (InverseSemigroup a, InverseSemigroup b, InverseSemigroup c, InverseSemigroup d, InverseSemigroup e) => InverseSemigroup (a, b, c, d, e)
 
 instance Group () where
   invert () = ()
