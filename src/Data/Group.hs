@@ -1,3 +1,10 @@
+{-|
+Module      : Data.Group
+Copyright   : (C) 2013 Nathan van Doorn
+License     : BSD-3
+Maintainer  : nvd1234@gmail.com
+-}
+
 module Data.Group where
 
 import Data.Monoid
