@@ -20,7 +20,7 @@ import Data.Monoid
 -- 'inv' x \<>     x \<> 'inv' x = 'inv' x
 -- @
 class Semigroup g => RegularSemigroup g where
-  inv :: g -> g
+  invert :: g -> g
 
 -- | An 'InverseSemigroup' is a 'RegularSemigroup' with the additional
 -- restriction that inverses are unique.
@@ -38,9 +38,6 @@ class RegularSemigroup g => InverseSemigroup g
 -- 'inv' a \<>     a == 'mempty'
 -- @
 class (InverseSemigroup g, Monoid g) => Group g where
-  invert :: g -> g
-  invert = inv
-
   -- |@'pow' a n == a \<> a \<> ... \<> a @
   --
   -- @ (n lots of a) @
@@ -63,31 +60,34 @@ class (InverseSemigroup g, Monoid g) => Group g where
 {-# DEPRECATED invert "use inv from RegularSemigroup instead" #-}
 
 instance RegularSemigroup () where
-  inv () = ()
+  invert () = ()
 
 instance Num a => RegularSemigroup (Sum a) where
-  inv = Sum . negate . getSum
+  invert = Sum . negate . getSum
+  {-# INLINE invert #-}
 
 instance Fractional a => RegularSemigroup (Product a) where
-  inv = Product . recip . getProduct
+  invert = Product . recip . getProduct
+  {-# INLINE invert #-}
 
 instance RegularSemigroup a => RegularSemigroup (Dual a) where
-  inv = Dual . inv . getDual
+  invert = Dual . invert . getDual
+  {-# INLINE invert #-}
 
 instance RegularSemigroup b => RegularSemigroup (a -> b) where
-  inv f = inv . f
+  invert f = invert . f
 
 instance (RegularSemigroup a, RegularSemigroup b) => RegularSemigroup (a, b) where
-  inv (a, b) = (inv a, inv b)
+  invert (a, b) = (invert a, invert b)
 
 instance (RegularSemigroup a, RegularSemigroup b, RegularSemigroup c) => RegularSemigroup (a, b, c) where
-  inv (a, b, c) = (inv a, inv b, inv c)
+  invert (a, b, c) = (invert a, invert b, invert c)
 
 instance (RegularSemigroup a, RegularSemigroup b, RegularSemigroup c, RegularSemigroup d) => RegularSemigroup (a, b, c, d) where
-  inv (a, b, c, d) = (inv a, inv b, inv c, inv d)
+  invert (a, b, c, d) = (invert a, invert b, invert c, invert d)
 
 instance (RegularSemigroup a, RegularSemigroup b, RegularSemigroup c, RegularSemigroup d, RegularSemigroup e) => RegularSemigroup (a, b, c, d, e) where
-  inv (a, b, c, d, e) = (inv a, inv b, inv c, inv d, inv e)
+  invert (a, b, c, d, e) = (invert a, invert b, invert c, invert d, invert e)
 
 instance InverseSemigroup ()
 instance Num a => InverseSemigroup (Sum a)
@@ -100,42 +100,30 @@ instance (InverseSemigroup a, InverseSemigroup b, InverseSemigroup c, InverseSem
 instance (InverseSemigroup a, InverseSemigroup b, InverseSemigroup c, InverseSemigroup d, InverseSemigroup e) => InverseSemigroup (a, b, c, d, e)
 
 instance Group () where
-  invert () = ()
   pow () _ = ()
 
 instance Num a => Group (Sum a) where
-  invert = Sum . negate . getSum
-  {-# INLINE invert #-}
   pow (Sum a) b = Sum (a * fromIntegral b)
 
 instance Fractional a => Group (Product a) where
-  invert = Product . recip . getProduct
-  {-# INLINE invert #-}
   pow (Product a) b = Product (a ^^ b)
 
 instance Group a => Group (Dual a) where
-  invert = Dual . invert . getDual
-  {-# INLINE invert #-}
   pow (Dual a) n = Dual (pow a n)
 
 instance Group b => Group (a -> b) where
-  invert f = invert . f
   pow f n e = pow (f e) n
 
 instance (Group a, Group b) => Group (a, b) where
-  invert (a, b) = (invert a, invert b)
   pow (a, b) n = (pow a n, pow b n)
 
 instance (Group a, Group b, Group c) => Group (a, b, c) where
-  invert (a, b, c) = (invert a, invert b, invert c)
   pow (a, b, c) n = (pow a n, pow b n, pow c n)
 
 instance (Group a, Group b, Group c, Group d) => Group (a, b, c, d) where
-  invert (a, b, c, d) = (invert a, invert b, invert c, invert d)
   pow (a, b, c, d) n = (pow a n, pow b n, pow c n, pow d n)
 
 instance (Group a, Group b, Group c, Group d, Group e) => Group (a, b, c, d, e) where
-  invert (a, b, c, d, e) = (invert a, invert b, invert c, invert d, invert e)
   pow (a, b, c, d, e) n = (pow a n, pow b n, pow c n, pow d n, pow e n)
 
 -- |An 'Abelian' group is a 'Group' that follows the rule:
