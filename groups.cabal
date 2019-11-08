@@ -1,7 +1,7 @@
 name:                groups
 version:             0.4.1.0
 synopsis:            Haskell 98 groups
-description:         
+description:
   Haskell 98 groups. A group is a monoid with invertibility.
 license:             BSD3
 license-file:        LICENSE
@@ -14,6 +14,6 @@ cabal-version:       >=1.8
 
 library
   exposed-modules:     Data.Group
-  -- other-modules:       
+  -- other-modules:
   build-depends:       base <5
   hs-source-dirs:      src
