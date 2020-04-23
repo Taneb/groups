@@ -147,6 +147,18 @@ instance Abelian (f (g a)) => Abelian ((f :.: g) a)
 class Group a => Cyclic a where
   generator :: a
 
+instance Cyclic () where
+  generator = ()
+
+instance Cyclic (Proxy x) where
+  generator = Proxy
+
+instance Cyclic a => Cyclic (Const a x) where
+  generator = Const generator
+
+instance Cyclic a => Cyclic (Identity a) where
+  generator = Identity generator
+
 generated :: Cyclic a => [a]
 generated =
   iterate (mappend generator) mempty
