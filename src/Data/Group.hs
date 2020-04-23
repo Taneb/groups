@@ -9,6 +9,11 @@ import Data.Monoid
 -- @invert a \<> a == mempty@
 class Monoid m => Group m where
   invert :: m -> m
+
+  -- | Group subtraction: @x ~~ y == x <> invert y@
+  (~~) :: m -> m -> m
+  x ~~ y = x <> invert y
+
   -- |@'pow' a n == a \<> a \<> ... \<> a @
   --
   -- @ (n lots of a) @
@@ -28,6 +33,8 @@ class Monoid m => Group m where
         | even n = g (x `mappend` x) (n `quot` 2) c
         | n == 1 = x `mappend` c
         | otherwise = g (x `mappend` x) (n `quot` 2) (x `mappend` c)
+
+infixl 7 ~~
 
 instance Group () where
   invert () = ()
