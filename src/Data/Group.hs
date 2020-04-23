@@ -2,7 +2,7 @@ module Data.Group where
 
 import Data.Monoid
 
--- |A 'Group' is a 'Monoid' plus a function, 'invert', such that: 
+-- |A 'Group' is a 'Monoid' plus a function, 'invert', such that:
 --
 -- @a \<> invert a == mempty@
 --
@@ -20,7 +20,7 @@ class Monoid m => Group m where
     EQ -> mempty
     GT -> f x0 n0
     where
-      f x n 
+      f x n
         | even n = f (x `mappend` x) (n `quot` 2)
         | n == 1 = x
         | otherwise = g (x `mappend` x) (n `quot` 2) x
@@ -28,7 +28,7 @@ class Monoid m => Group m where
         | even n = g (x `mappend` x) (n `quot` 2) c
         | n == 1 = x `mappend` c
         | otherwise = g (x `mappend` x) (n `quot` 2) (x `mappend` c)
-  
+
 instance Group () where
   invert () = ()
   pow () _ = ()
@@ -37,7 +37,7 @@ instance Num a => Group (Sum a) where
   invert = Sum . negate . getSum
   {-# INLINE invert #-}
   pow (Sum a) b = Sum (a * fromIntegral b)
-  
+
 instance Fractional a => Group (Product a) where
   invert = Product . recip . getProduct
   {-# INLINE invert #-}
@@ -55,7 +55,7 @@ instance Group b => Group (a -> b) where
 instance (Group a, Group b) => Group (a, b) where
   invert (a, b) = (invert a, invert b)
   pow (a, b) n = (pow a n, pow b n)
-  
+
 instance (Group a, Group b, Group c) => Group (a, b, c) where
   invert (a, b, c) = (invert a, invert b, invert c)
   pow (a, b, c) n = (pow a n, pow b n, pow c n)
@@ -69,7 +69,7 @@ instance (Group a, Group b, Group c, Group d, Group e) => Group (a, b, c, d, e) 
   pow (a, b, c, d, e) n = (pow a n, pow b n, pow c n, pow d n, pow e n)
 
 -- |An 'Abelian' group is a 'Group' that follows the rule:
--- 
+--
 -- @a \<> b == b \<> a@
 class Group g => Abelian g
 
@@ -100,4 +100,3 @@ class Group a => Cyclic a where
 generated :: Cyclic a => [a]
 generated =
   iterate (mappend generator) mempty
-
