@@ -23,7 +23,7 @@ import GHC.Generics
 class Monoid m => Group m where
   invert :: m -> m
 
-  -- | Group subtraction: @x ~~ y == x <> invert y@
+  -- | Group subtraction: @x ~~ y == x \<> invert y@
   (~~) :: m -> m -> m
   x ~~ y = x `mappend` invert y
 
