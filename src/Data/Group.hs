@@ -51,7 +51,7 @@ infixl 7 ~~
 
 instance Group () where
   invert () = ()
-  pow () _ = ()
+  pow _ _ = ()
 
 instance Num a => Group (Sum a) where
   invert = Sum . negate . getSum
@@ -131,6 +131,7 @@ instance Cyclic () where
 instance Group (Proxy x) where
   invert _ = Proxy
   _ ~~ _ = Proxy
+  pow _ _ = Proxy
 
 instance Abelian (Proxy x)
 
