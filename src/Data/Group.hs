@@ -165,7 +165,7 @@ instance Cyclic a => Cyclic (Identity a) where
 #endif
 
 -- (:*:) and (:.:) exist since base-4.6.0.0 but the Monoid instances
--- arrives in base-4.12.0.0.
+-- arrive in base-4.12.0.0.
 #if MIN_VERSION_base(4,12,0)
 -- | Product of groups, Functor style.
 instance (Group (f a), Group (g a)) => Group ((f :*: g) a) where
