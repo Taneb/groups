@@ -37,9 +37,6 @@ the `patch` package at https://github.com/reflex-frp/patch :
 instance Group (Proxy x)
 instance (Group (f a), Group (g a)) => Group ((f :*: g) a)
 instance Group (f (g a)) => Group ((f :.: g) a)
-instance Abelian (Proxy x)
-instance (Abelian (f a), Abelian (g a)) => Abelian ((f :*: g) a)
-instance Abelian (f (g a)) => Abelian ((f :.: g) a)
 
 They are used under the following terms:
 

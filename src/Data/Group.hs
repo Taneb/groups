@@ -1,12 +1,19 @@
+{-# LANGUAGE CPP           #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Data.Group where
 
+import Data.Monoid
+#if MIN_VERSION_base(4,7,0)
+import Data.Proxy
+#endif
+#if MIN_VERSION_base(4,9,0)
 import Data.Functor.Const
 import Data.Functor.Identity
-import Data.Monoid
-import Data.Proxy
+#endif
+#if MIN_VERSION_base(4,12,0)
 import GHC.Generics
+#endif
 
 -- |A 'Group' is a 'Monoid' plus a function, 'invert', such that:
 --
@@ -18,7 +25,7 @@ class Monoid m => Group m where
 
   -- | Group subtraction: @x ~~ y == x <> invert y@
   (~~) :: m -> m -> m
-  x ~~ y = x <> invert y
+  x ~~ y = x `mappend` invert y
 
   -- |@'pow' a n == a \<> a \<> ... \<> a @
   --
@@ -81,32 +88,6 @@ instance (Group a, Group b, Group c, Group d, Group e) => Group (a, b, c, d, e) 
   invert (a, b, c, d, e) = (invert a, invert b, invert c, invert d, invert e)
   pow (a, b, c, d, e) n = (pow a n, pow b n, pow c n, pow d n, pow e n)
 
--- | Trivial group, Functor style.
-instance Group (Proxy x) where
-  invert _ = Proxy
-  _ ~~ _ = Proxy
-
--- | 'Const' lifts groups into a functor.
-instance Group a => Group (Const a x) where
-  invert (Const a) = Const (invert a)
-  Const a ~~ Const b = Const (a ~~ b)
-
--- | 'Identity' lifts groups pointwise (at only one point).
-instance Group a => Group (Identity a) where
-  invert (Identity a) = Identity (invert a)
-  Identity a ~~ Identity b = Identity (a ~~ b)
-
--- | Product of groups, Functor style.
-instance (Group (f a), Group (g a)) => Group ((f :*: g) a) where
-  invert (a :*: b) = invert a :*: invert b
-  (a :*: b) ~~ (c :*: d) = (a ~~ c) :*: (b ~~ d)
-
--- See https://gitlab.haskell.org/ghc/ghc/issues/11135#note_111802 for the reason Compose is not also provided.
--- Base does not define Monoid (Compose f g a) so this is the best we can
--- really do for functor composition.
-instance Group (f (g a)) => Group ((f :.: g) a) where
-  invert (Comp1 xs) = Comp1 (invert xs)
-  Comp1 xs ~~ Comp1 ys = Comp1 (xs ~~ ys)
 
 -- |An 'Abelian' group is a 'Group' that follows the rule:
 --
@@ -131,15 +112,55 @@ instance (Abelian a, Abelian b, Abelian c, Abelian d) => Abelian (a, b, c, d)
 
 instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, b, c, d, e)
 
+
+#if MIN_VERSION_base(4,7,0)
+-- | Trivial group, Functor style.
+instance Group (Proxy x) where
+  invert _ = Proxy
+  _ ~~ _ = Proxy
+
 instance Abelian (Proxy x)
+#endif
+
+-- 'Const' has existed for a long time, but the Monoid instance
+-- arrives in base-4.9.0.0. Similarly, 'Identity' was defined in
+-- base-4.8.0.0 but doesn't get the Monoid instance until base-4.9.0.0
+#if MIN_VERSION_base(4,9,0)
+-- | 'Const' lifts groups into a functor.
+instance Group a => Group (Const a x) where
+  invert (Const a) = Const (invert a)
+  Const a ~~ Const b = Const (a ~~ b)
+
+-- | 'Identity' lifts groups pointwise (at only one point).
+instance Group a => Group (Identity a) where
+  invert (Identity a) = Identity (invert a)
+  Identity a ~~ Identity b = Identity (a ~~ b)
 
 instance Abelian a => Abelian (Const a x)
 
 instance Abelian a => Abelian (Identity a)
+#endif
+
+-- (:*:) and (:.:) exist since base-4.6.0.0 but the Monoid instances
+-- arrives in base-4.12.0.0.
+#if MIN_VERSION_base(4,12,0)
+-- | Product of groups, Functor style.
+instance (Group (f a), Group (g a)) => Group ((f :*: g) a) where
+  invert (a :*: b) = invert a :*: invert b
+  (a :*: b) ~~ (c :*: d) = (a ~~ c) :*: (b ~~ d)
+
+-- See https://gitlab.haskell.org/ghc/ghc/issues/11135#note_111802 for the reason Compose is not also provided.
+-- Base does not define Monoid (Compose f g a) so this is the best we can
+-- really do for functor composition.
+instance Group (f (g a)) => Group ((f :.: g) a) where
+  invert (Comp1 xs) = Comp1 (invert xs)
+  Comp1 xs ~~ Comp1 ys = Comp1 (xs ~~ ys)
 
 instance (Abelian (f a), Abelian (g a)) => Abelian ((f :*: g) a)
 
 instance Abelian (f (g a)) => Abelian ((f :.: g) a)
+#endif
+
 
 -- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
 --

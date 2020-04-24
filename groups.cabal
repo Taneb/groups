@@ -15,5 +15,5 @@ cabal-version:       >=1.8
 library
   exposed-modules:     Data.Group
   -- other-modules:
-  build-depends:       base >= 4.12.0.0 && < 5
+  build-depends:       base >= 4.6 && < 5
   hs-source-dirs:      src
