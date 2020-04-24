@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------
 
-The `Group` and `Abelian` instances for the following types are from
-the `patch` package at https://github.com/reflex-frp/patch :
+The `Group` instances for the following types are from the `patch`
+package at https://github.com/reflex-frp/patch :
 
 instance Group (Proxy x)
 instance (Group (f a), Group (g a)) => Group ((f :*: g) a)
