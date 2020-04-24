@@ -113,6 +113,19 @@ instance (Abelian a, Abelian b, Abelian c, Abelian d) => Abelian (a, b, c, d)
 instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, b, c, d, e)
 
 
+-- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
+--
+-- @y = pow x n@
+class Group a => Cyclic a where
+  generator :: a
+
+generated :: Cyclic a => [a]
+generated =
+  iterate (mappend generator) mempty
+
+instance Cyclic () where
+  generator = ()
+
 #if MIN_VERSION_base(4,7,0)
 -- | Trivial group, Functor style.
 instance Group (Proxy x) where
@@ -120,6 +133,9 @@ instance Group (Proxy x) where
   _ ~~ _ = Proxy
 
 instance Abelian (Proxy x)
+
+instance Cyclic (Proxy x) where
+  generator = Proxy
 #endif
 
 -- 'Const' has existed for a long time, but the Monoid instance
@@ -139,6 +155,12 @@ instance Group a => Group (Identity a) where
 instance Abelian a => Abelian (Const a x)
 
 instance Abelian a => Abelian (Identity a)
+
+instance Cyclic a => Cyclic (Const a x) where
+  generator = Const generator
+
+instance Cyclic a => Cyclic (Identity a) where
+  generator = Identity generator
 #endif
 
 -- (:*:) and (:.:) exist since base-4.6.0.0 but the Monoid instances
@@ -160,26 +182,3 @@ instance (Abelian (f a), Abelian (g a)) => Abelian ((f :*: g) a)
 
 instance Abelian (f (g a)) => Abelian ((f :.: g) a)
 #endif
-
-
--- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
---
--- @y = pow x n@
-class Group a => Cyclic a where
-  generator :: a
-
-instance Cyclic () where
-  generator = ()
-
-instance Cyclic (Proxy x) where
-  generator = Proxy
-
-instance Cyclic a => Cyclic (Const a x) where
-  generator = Const generator
-
-instance Cyclic a => Cyclic (Identity a) where
-  generator = Identity generator
-
-generated :: Cyclic a => [a]
-generated =
-  iterate (mappend generator) mempty
