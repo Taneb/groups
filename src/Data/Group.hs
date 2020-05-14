@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP           #-}
+#if MIN_VERSION_base(4,12,0)
 {-# LANGUAGE TypeOperators #-}
+#endif
 
 module Data.Group where
 
