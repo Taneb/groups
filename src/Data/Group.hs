@@ -128,6 +128,8 @@ generated =
 instance Cyclic () where
   generator = ()
 
+instance Integral a => Cyclic (Sum a) where
+  generator = Sum 1
 #if MIN_VERSION_base(4,7,0)
 -- | Trivial group, Functor style.
 instance Group (Proxy x) where
