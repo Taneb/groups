@@ -6,6 +6,8 @@
 module Data.Group where
 
 import Data.Monoid
+import Data.Ord
+import Data.List (unfoldr)
 #if MIN_VERSION_base(4,7,0)
 import Data.Proxy
 #endif
@@ -91,6 +93,15 @@ instance (Group a, Group b, Group c, Group d, Group e) => Group (a, b, c, d, e) 
   invert (a, b, c, d, e) = (invert a, invert b, invert c, invert d, invert e)
   pow (a, b, c, d, e) n = (pow a n, pow b n, pow c n, pow d n, pow e n)
 
+#if MIN_VERSION_base(4,11,0)
+instance Group a => Group (Down a) where
+  invert (Down a) = Down (invert a)
+#endif
+
+#if MIN_VERSION_base(4,12,0)
+instance (Applicative f, Abelian a) => Group (Ap f a) where
+  invert (Ap f) = Ap (invert <$> f)
+#endif
 
 -- |An 'Abelian' group is a 'Group' that follows the rule:
 --
@@ -115,16 +126,40 @@ instance (Abelian a, Abelian b, Abelian c, Abelian d) => Abelian (a, b, c, d)
 
 instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, b, c, d, e)
 
+#if MIN_VERSION_base(4,11,0)
+instance Abelian a => Abelian (Down a)
+#endif
+
+#if MIN_VERSION_base(4,12,0)
+instance (Applicative f, Abelian a) => Abelian (Ap f a)
+#endif
+
 
 -- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
 --
 -- @y = pow x n@
 class Group a => Cyclic a where
+  -- | The generator of the 'Cyclic' group.
   generator :: a
 
+-- | Generate all elements of a 'Cyclic' group using its 'generator'.
+--
+-- /Note:/ Fuses, does not terminate even for finite groups.
+--
 generated :: Cyclic a => [a]
 generated =
   iterate (mappend generator) mempty
+
+-- | Lazily generate all elements of a 'Cyclic' group using its 'generator'.
+--
+-- /Note:/ Fuses, terminates if the underlying group is finite.
+--
+generated' :: (Eq a, Cyclic a) => [a]
+generated' = unfoldr go (generator, 0 :: Integer)
+  where
+    go (a, n)
+      | a == mempty, n > 0 = Nothing
+      | otherwise = Just (a, (a <> generator, succ n))
 
 instance Cyclic () where
   generator = ()
