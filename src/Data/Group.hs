@@ -99,7 +99,7 @@ instance Group a => Group (Down a) where
 #endif
 
 #if MIN_VERSION_base(4,12,0)
-instance (Applicative f, Abelian a) => Group (Ap f a) where
+instance (Applicative f, Group a) => Group (Ap f a) where
   invert (Ap f) = Ap (invert <$> f)
 #endif
 
@@ -229,4 +229,14 @@ instance Group a => Group (Op a b) where
   pow (Op f) n = Op (\e -> pow (f e) n)
 
 instance Abelian a => Abelian (Op a b)
+#endif
+
+#if MIN_VERSION_base(4,11,0)
+instance Cyclic a => Cyclic (Down a) where
+  generator = Down generator
+#endif
+
+#if MIN_VERSION_base(4,12,0)
+instance (Applicative f, Cyclic a) => Cyclic (Ap f a) where
+  generator = Ap (pure generator)
 #endif
