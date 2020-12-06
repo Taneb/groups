@@ -14,6 +14,7 @@ import Data.Functor.Const
 import Data.Functor.Identity
 #endif
 #if MIN_VERSION_base(4,12,0)
+import Data.Functor.Contravariant (Op(Op))
 import GHC.Generics
 #endif
 
@@ -170,6 +171,7 @@ instance Cyclic a => Cyclic (Identity a) where
 
 -- (:*:) and (:.:) exist since base-4.6.0.0 but the Monoid instances
 -- arrive in base-4.12.0.0.
+-- Also, contravariant was moved into base in this version.
 #if MIN_VERSION_base(4,12,0)
 -- | Product of groups, Functor style.
 instance (Group (f a), Group (g a)) => Group ((f :*: g) a) where
@@ -186,4 +188,10 @@ instance Group (f (g a)) => Group ((f :.: g) a) where
 instance (Abelian (f a), Abelian (g a)) => Abelian ((f :*: g) a)
 
 instance Abelian (f (g a)) => Abelian ((f :.: g) a)
+
+instance Group a => Group (Op a b) where
+  invert (Op f) = Op (invert f)
+  pow (Op f) n = Op (\e -> pow (f e) n)
+
+instance Abelian a => Abelian (Op a b)
 #endif
