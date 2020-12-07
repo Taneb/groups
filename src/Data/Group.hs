@@ -148,7 +148,7 @@ generated' :: (Eq a, Cyclic a) => [a]
 generated' = unfoldr go (generator, 0 :: Integer)
   where
     go (a, n)
-      | a == mempty, n > 0 = Nothing
+      | a == generator, n > 0 = Nothing
       | otherwise = Just (a, (a <> generator, succ n))
 
 instance Cyclic () where
