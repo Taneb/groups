@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                groups
-version:             0.5.2
+version:             0.5.3
 synopsis:            Groups
 description:
   A group is a monoid with invertibility.
