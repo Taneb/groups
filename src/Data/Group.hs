@@ -97,6 +97,11 @@ instance (Group a, Group b, Group c, Group d, Group e) => Group (a, b, c, d, e) 
 instance Group a => Group (Down a) where
   invert (Down a) = Down (invert a)
 #endif
+#if MIN_VERSION_base(4,12,0)
+instance (Applicative f, Group a) => Group (Ap f a) where
+  invert (Ap a) = Ap (fmap invert a)
+  pow (Ap a) b = Ap (fmap (`pow` b) a)
+#endif
 
 -- |An 'Abelian' group is a 'Group' that follows the rule:
 --
@@ -123,6 +128,9 @@ instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, 
 
 #if MIN_VERSION_base(4,11,0)
 instance Abelian a => Abelian (Down a)
+#endif
+#if MIN_VERSION_base(4,12,0)
+instance (Applicative f, Abelian a) => Abelian (Ap f a)
 #endif
 
 -- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
