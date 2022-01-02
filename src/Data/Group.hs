@@ -171,7 +171,6 @@ instance Cyclic a => Cyclic (Identity a) where
 -- (:*:) and (:.:) exist since base-4.6.0.0 but the Monoid instances
 -- arrive in base-4.12.0.0.
 -- Also, contravariant was moved into base in this version.
-#if MIN_VERSION_base(4,12,0)
 -- | Product of groups, Functor style.
 instance (Group (f a), Group (g a)) => Group ((f :*: g) a) where
   invert (a :*: b) = invert a :*: invert b
@@ -184,6 +183,7 @@ instance Group (f (g a)) => Group ((f :.: g) a) where
   invert (Comp1 xs) = Comp1 (invert xs)
   Comp1 xs ~~ Comp1 ys = Comp1 (xs ~~ ys)
 
+#if MIN_VERSION_base(4,12,0)
 instance Group a => Group (Op a b) where
   invert (Op f) = Op (invert f)
   pow (Op f) n = Op (\e -> pow (f e) n)
