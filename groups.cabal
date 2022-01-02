@@ -11,6 +11,9 @@ maintainer:          nvd1234@gmail.com
 copyright:           Copyright (C) 2013 Nathan van Doorn
 category:            Algebra, Data, Math
 build-type:          Simple
+bug-reports:         https://github.com/Taneb/groups/issues
+extra-source-files:
+  ChangeLog.md
 
 source-repository head
   type:     git
