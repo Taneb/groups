@@ -1,5 +1,11 @@
 # Revision history for groups
 
+## Unreleased
+
+* `Abelian` is now just a small wrapper around `Group` + `Commutative` from
+  `commutative-semigroups`, which was forked out from this library to relax the
+  superclass.
+
 ## 0.5.3 - 2021-05-14
 
 * Fix bug in `generated'`
