@@ -1,11 +1,14 @@
-{-# LANGUAGE CPP           #-}
+{-# LANGUAGE CPP                  #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE UndecidableInstances #-}
 #if MIN_VERSION_base(4,12,0)
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeOperators        #-}
 #endif
 
 module Data.Group where
 
 import Data.Monoid
+import Data.Semigroup.Commutative
 import Data.Ord
 import Data.List (unfoldr)
 #if MIN_VERSION_base(4,7,0)
@@ -98,32 +101,9 @@ instance Group a => Group (Down a) where
   invert (Down a) = Down (invert a)
 #endif
 
--- |An 'Abelian' group is a 'Group' that follows the rule:
---
--- @a \<> b == b \<> a@
-class Group g => Abelian g
-
-instance Abelian ()
-
-instance Num a => Abelian (Sum a)
-
-instance Fractional a => Abelian (Product a)
-
-instance Abelian a => Abelian (Dual a)
-
-instance Abelian b => Abelian (a -> b)
-
-instance (Abelian a, Abelian b) => Abelian (a, b)
-
-instance (Abelian a, Abelian b, Abelian c) => Abelian (a, b, c)
-
-instance (Abelian a, Abelian b, Abelian c, Abelian d) => Abelian (a, b, c, d)
-
-instance (Abelian a, Abelian b, Abelian c, Abelian d, Abelian e) => Abelian (a, b, c, d, e)
-
-#if MIN_VERSION_base(4,11,0)
-instance Abelian a => Abelian (Down a)
-#endif
+-- |An 'Abelian' group is a 'Group' that is also 'Commutative'
+class (Group g, Commutative g) => Abelian g
+instance (Group g, Commutative g) => Abelian g
 
 -- | A 'Group' G is 'Cyclic' if there exists an element x of G such that for all y in G, there exists an n, such that
 --
@@ -163,8 +143,6 @@ instance Group (Proxy x) where
   _ ~~ _ = Proxy
   pow _ _ = Proxy
 
-instance Abelian (Proxy x)
-
 instance Cyclic (Proxy x) where
   generator = Proxy
 #endif
@@ -182,10 +160,6 @@ instance Group a => Group (Const a x) where
 instance Group a => Group (Identity a) where
   invert (Identity a) = Identity (invert a)
   Identity a ~~ Identity b = Identity (a ~~ b)
-
-instance Abelian a => Abelian (Const a x)
-
-instance Abelian a => Abelian (Identity a)
 
 instance Cyclic a => Cyclic (Const a x) where
   generator = Const generator
@@ -210,15 +184,9 @@ instance Group (f (g a)) => Group ((f :.: g) a) where
   invert (Comp1 xs) = Comp1 (invert xs)
   Comp1 xs ~~ Comp1 ys = Comp1 (xs ~~ ys)
 
-instance (Abelian (f a), Abelian (g a)) => Abelian ((f :*: g) a)
-
-instance Abelian (f (g a)) => Abelian ((f :.: g) a)
-
 instance Group a => Group (Op a b) where
   invert (Op f) = Op (invert f)
   pow (Op f) n = Op (\e -> pow (f e) n)
-
-instance Abelian a => Abelian (Op a b)
 #endif
 
 #if MIN_VERSION_base(4,11,0)
